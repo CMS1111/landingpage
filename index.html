@@ -235,7 +235,7 @@
   .about-panel {
     flex: 1;
     overflow-y: auto;
-    padding: 40px 52px;
+    padding: clamp(20px, 4vw, 52px) clamp(16px, 5vw, 52px);
     scrollbar-width: thin;
     scrollbar-color: var(--neon-cream-edge) transparent;
   }
@@ -299,6 +299,7 @@
     flex-direction: column;
     gap: 28px;
     animation: fadeUp 0.4s ease both;
+    width: 100%;
     max-width: 680px;
   }
 
@@ -488,22 +489,22 @@
         ║  data-title   : sidebar label                       ║
         ║  data-url     : full https:// URL                   ║
         ║  data-favicon : full URL to favicon image           ║
-        ║  data-desc-1  : first paragraph (required)          ║
-        ║  data-desc-2  : second paragraph (optional)         ║
-        ║  data-desc-3  : third paragraph (optional)          ║
+        ║  data-desc1   : first paragraph (required)          ║
+        ║  data-desc2   : second paragraph (optional)         ║
+        ║  data-desc3   : third paragraph (optional)          ║
         ╚══════════════════════════════════════════════════════╝
       -->
 
       <div class="link-cell"
            data-id="proj-1"
-           data-title="Snap Loop"
-           data-url="https://github.com/CMS1111/snap-loop"
+           data-title="YT Player Mobile Version"
+           data-url="https://cms1111.github.io/YT_Playlist_Mobile/"
            data-favicon="https://github.com/favicon.ico"
-           data-desc-1="Snap Loop is an async Python media scraping pipeline with a supervisor/worker/downloader architecture. It handles large-scale media retrieval with race-condition-safe file handling and an ANSI live dashboard."
-           data-desc-2="The CDN key cycling strategy rotates access keys based on brute-force size analysis, ensuring uninterrupted downloads even when individual keys are rate-limited or expired."
-           data-desc-3="Supports image, video, and combined bucket modes with priority key ordering and filename-segment-based deduplication to avoid redundant downloads.">
+           data-desc1="A video playlist creator for Youtube video to use on your mobile device."
+           data-desc2="The player works best on Brave Browser. It was created specifically to tackle issues with playback on iPhone devices, where youtube restricts many playback features."
+           data-desc3="Native Brave Browser features allows for ad-blocking. You can now turn your phone's display off and listen to a playlist of your videos in the background, or stream it to your car's stereo.">
         <span class="link-cell-dot"></span>
-        <span class="link-cell-title">Snap Loop</span>
+        <span class="link-cell-title">YT Player Mobile Version</span>
       </div>
 
       <div class="link-cell"
@@ -511,9 +512,9 @@
            data-title="CRYBOT"
            data-url="https://github.com/CMS1111/crybot"
            data-favicon="https://github.com/favicon.ico"
-           data-desc-1="CRYBOT is a multi-process crypto prediction and paper-trading system targeting BTC/ETH direction on Kalshi prediction markets. It ingests Coinbase candle data and feeds an ensemble of ML analyzers."
-           data-desc-2="The ensemble layer combines LSTM, Random Forest, and Technical Analysis models under a Kelly-criterion betting worker. All inter-process communication runs over flat files for simplicity and resilience."
-           data-desc-3="Ongoing work includes two-pass historical simulation, per-variant prediction scopes, multi-book bankroll management, and a live market signal analyzer.">
+           data-desc1="CRYBOT is a multi-process crypto prediction and paper-trading system targeting BTC/ETH direction on Kalshi prediction markets. It ingests Coinbase candle data and feeds an ensemble of ML analyzers."
+           data-desc2="The ensemble layer combines LSTM, Random Forest, and Technical Analysis models under a Kelly-criterion betting worker. All inter-process communication runs over flat files for simplicity and resilience."
+           data-desc3="Ongoing work includes two-pass historical simulation, per-variant prediction scopes, multi-book bankroll management, and a live market signal analyzer.">
         <span class="link-cell-dot"></span>
         <span class="link-cell-title">CRYBOT</span>
       </div>
@@ -523,9 +524,9 @@
            data-title="URL Classifier"
            data-url="https://github.com/CMS1111/url-classifier"
            data-favicon="https://github.com/favicon.ico"
-           data-desc-1="A dual-mode URL classifier available as both an async Python CLI tool and a self-contained HTML/JS application. It buckets URLs by MIME type with resume, pause, stop, and retry support."
-           data-desc-2="The browser version uses a clean card-based gallery interface with regex filtering, lazy loading, and ZIP export for saving classified results locally without a backend."
-           data-desc-3="Designed for large URL lists — the Python version leverages aiohttp with tqdm progress reporting for fast concurrent classification across thousands of entries.">
+           data-desc1="A dual-mode URL classifier available as both an async Python CLI tool and a self-contained HTML/JS application. It buckets URLs by MIME type with resume, pause, stop, and retry support."
+           data-desc2="The browser version uses a clean card-based gallery interface with regex filtering, lazy loading, and ZIP export for saving classified results locally without a backend."
+           data-desc3="Designed for large URL lists — the Python version leverages aiohttp with tqdm progress reporting for fast concurrent classification across thousands of entries.">
         <span class="link-cell-dot"></span>
         <span class="link-cell-title">URL Classifier</span>
       </div>
@@ -535,9 +536,9 @@
            data-title="FF Directory Enhancer"
            data-url="https://github.com/CMS1111/ff-dir-enhancer"
            data-favicon="https://github.com/favicon.ico"
-           data-desc-1="A Violentmonkey userscript that transforms Firefox's bare file:/// directory listings into a rich interface with thumbnail previews, a sortable file table, and a large side-panel lightbox."
-           data-desc-2="Thumbnails are generated inline for common image formats with no external dependencies. The lightbox supports keyboard navigation and displays EXIF-style metadata where available."
-           data-desc-3="Fully self-contained — no build step, no bundler, no node_modules. Drop the script into Violentmonkey and every local directory listing is instantly enhanced.">
+           data-desc1="A Violentmonkey userscript that transforms Firefox's bare file:/// directory listings into a rich interface with thumbnail previews, a sortable file table, and a large side-panel lightbox."
+           data-desc2="Thumbnails are generated inline for common image formats with no external dependencies. The lightbox supports keyboard navigation and displays EXIF-style metadata where available."
+           data-desc3="Fully self-contained — no build step, no bundler, no node_modules. Drop the script into Violentmonkey and every local directory listing is instantly enhanced.">
         <span class="link-cell-dot"></span>
         <span class="link-cell-title">FF Directory Enhancer</span>
       </div>
@@ -547,9 +548,9 @@
            data-title="Roku ECP Controller"
            data-url="https://github.com/CMS1111/roku-ecp"
            data-favicon="https://github.com/favicon.ico"
-           data-desc-1="A proof-of-concept Roku channel with a companion phone controller built on Roku's External Control Protocol. The phone interface mimics a remote with D-pad, select, and media keys."
-           data-desc-2="All communication happens over the local network via ECP HTTP calls — no cloud dependency, no Roku developer account needed beyond sideloading. Written in BrightScript with a minimal HTML phone UI."
-           data-desc-3="Intended as a foundation for custom channel development and as a reference implementation for ECP-based automation scripts.">
+           data-desc1="A proof-of-concept Roku channel with a companion phone controller built on Roku's External Control Protocol. The phone interface mimics a remote with D-pad, select, and media keys."
+           data-desc2="All communication happens over the local network via ECP HTTP calls — no cloud dependency, no Roku developer account needed beyond sideloading. Written in BrightScript with a minimal HTML phone UI."
+           data-desc3="Intended as a foundation for custom channel development and as a reference implementation for ECP-based automation scripts.">
         <span class="link-cell-dot"></span>
         <span class="link-cell-title">Roku ECP Controller</span>
       </div>
