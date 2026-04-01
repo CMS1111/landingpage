@@ -1,0 +1,67 @@
+<!--
+  partials/sidebar-cells.html
+  ═══════════════════════════════════════════════════════════════
+  Each .link-cell represents one project in the sidebar.
+  This file is fetched at runtime and injected into #cells-mount.
+
+  TO ADD A PROJECT — copy one block below and update the values:
+
+    data-id      — unique key, no spaces        e.g. "proj-5"
+    data-title   — sidebar label
+    data-url     — full https:// URL
+    data-favicon — full URL to a favicon image
+    data-desc1   — first paragraph   (required)
+    data-desc2   — second paragraph  (optional, delete if unused)
+    data-desc3   — third paragraph   (optional, delete if unused)
+
+  TO REMOVE A PROJECT — delete the entire .link-cell block.
+  ═══════════════════════════════════════════════════════════════
+-->
+
+<div class="link-cell"
+     data-id="proj-1"
+     data-title="YT Player Mobile Version"
+     data-url="https://cms1111.github.io/YT_Playlist_Mobile/"
+     data-favicon="https://github.com/favicon.ico"
+     data-desc1="A video playlist creator for Youtube video to use on your mobile device."
+     data-desc2="The player works best on Brave Browser. It was created specifically to tackle issues with playback on iPhone devices, where youtube restricts many playback features."
+     data-desc3="Native Brave Browser features allows for ad-blocking. You can now turn your phone's display off and listen to a playlist of your videos in the background, or stream it to your car's stereo.">
+  <span class="link-cell-dot"></span>
+  <span class="link-cell-title">YT Player Mobile Version</span>
+</div>
+
+<div class="link-cell"
+     data-id="proj-2"
+     data-title="YT Player Desktop Version"
+     data-url="https://cms1111.github.io/Youtube_playlist/"
+     data-favicon="https://github.com/favicon.ico"
+     data-desc1="A video playlist creator for Youtube video to use on your desktop browser."
+     data-desc2="The player works best on desktop and currently has only been tested on Firefox."
+     data-desc3="Features include: import/export playlist, paste and add url buttons, video navigation buttons, and autoplay.">
+  <span class="link-cell-dot"></span>
+  <span class="link-cell-title">YT Player Desktop Version</span>
+</div>
+
+<div class="link-cell"
+     data-id="proj-3"
+     data-title="Any Playlist"
+     data-url="https://cms1111.github.io/AnyPlaylist"
+     data-favicon="https://github.com/favicon.ico"
+     data-desc1="A video playlist creator for most direct mp4 urls."
+     data-desc2="Going beyond just youtube videos, this page will allow you to create a playlist of most mp4 links you have."
+     data-desc3="There are many restrictions for mp4 embedding including CORS, where content is only playable if you're connected to the original domain. This project is in its infancy, but I plan to tackle many of these restrictions in the future.">
+  <span class="link-cell-dot"></span>
+  <span class="link-cell-title">Any Playlist</span>
+</div>
+
+<div class="link-cell"
+     data-id="proj-4"
+     data-title="VR Playlist"
+     data-url="https://cms1111.github.io/vrplaylist"
+     data-favicon="https://github.com/favicon.ico"
+     data-desc1="A video playlist creator that converts video to VR."
+     data-desc2="This project is still incomplete, check back soon."
+     data-desc3="The final project will transform videos from a url into VR playback, with 360, 180, 2D Dual view, and features like zoom and pan.">
+  <span class="link-cell-dot"></span>
+  <span class="link-cell-title">VR Playlist</span>
+</div>
