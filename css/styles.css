@@ -449,6 +449,53 @@ header .header-rule {
   text-shadow: var(--text-shadow-body);
 }
 
+/* ─── GLASS BLOCK LINK ───────────────────────────────────── */
+/* Used inside data-desc fields via innerHTML — e.g. CTA buttons */
+.glass-block-link {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--neon-cream-edge);
+  background: linear-gradient(180deg, rgba(255,240,190,0.11) 0%, rgba(8,7,5,0.72) 100%);
+  color: var(--neon-cream-glow);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: box-shadow var(--transition), filter var(--transition), border-color var(--transition);
+  margin-top: 6px;
+}
+
+/* Glass arc */
+.glass-block-link::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: -10%;
+  width: 120%;
+  height: 28px;
+  background: white;
+  border-radius: 50%;
+  opacity: calc(74 / 255);
+  pointer-events: none;
+}
+
+.glass-block-link:hover {
+  border-color: var(--neon-cream-glow);
+  box-shadow: var(--glow-sm);
+  filter: brightness(1.15);
+}
+
+.glass-block-link:active {
+  filter: brightness(0.9);
+  transform: translateY(1px);
+}
+
 /* ─── FOOTER ─────────────────────────────────────────────── */
 footer {
   position: relative;
