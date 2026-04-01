@@ -495,14 +495,20 @@
 
     .sidebar {
       position: fixed;
-      top: 0;
+      top: var(--header-h);           /* FIX: start below the header, not under it */
       left: 0;
-      height: 100%;
+      height: calc(100% - var(--header-h) - var(--footer-h)); /* FIX: stop above footer */
       z-index: 60;
       transform: translateX(-100%);
       width: min(var(--sidebar-w), 80vw);
+      overflow: hidden;
     }
     .sidebar.open { transform: translateX(0); }
+    /* FIX 1.1: guarantee the list scrolls on mobile when items overflow */
+    .sidebar .sidebar-inner {
+      height: 100%;
+      overflow-y: auto;
+    }
 
     .drawer-overlay { display: block; }
     .drawer-overlay.visible { opacity: 1; pointer-events: auto; } /* re-enable when open */
@@ -753,7 +759,8 @@
   }
 
   cells.forEach(cell => {
-    cell.addEventListener('click', () => {
+    cell.addEventListener('click', (e) => {
+      e.stopPropagation(); /* FIX: prevent tap bubbling to drawerOverlay which races closeSidebar */
       cells.forEach(c => c.classList.remove('active'));
       cell.classList.add('active');
       showProject(cell);
