@@ -11,7 +11,7 @@
 <style>
   /* ─── DESIGN TOKENS ─────────────────────────────────────── */
   :root {
-    --bg-tile:          url('bg.png');
+    --bg-tile:          url('background.png');
     --neon-cream:       #f5ead0;          /* base cream */
     --neon-cream-glow:  #ffe8a0;          /* the "neon" — warm amber-cream */
     --neon-cream-dim:   rgba(245,234,208,0.18);
