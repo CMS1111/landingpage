@@ -479,6 +479,7 @@
     background: rgba(0,0,0,0.6);
     z-index: 50;
     opacity: 0;
+    pointer-events: none;        /* FIX: never intercept taps when invisible */
     transition: opacity var(--transition);
   }
 
@@ -504,7 +505,7 @@
     .sidebar.open { transform: translateX(0); }
 
     .drawer-overlay { display: block; }
-    .drawer-overlay.visible { opacity: 1; pointer-events: auto; }
+    .drawer-overlay.visible { opacity: 1; pointer-events: auto; } /* re-enable when open */
 
     .about-panel { padding: 24px 20px; }
     .about-body  { padding: 20px 18px; }
@@ -761,13 +762,12 @@
   });
 
   /* ══════════════════════════════════════════════════════════
-     4. MOBILE DRAWER  —  FIX #3
-     Added pointerdown listener as a fallback alongside click.
-     Some Android WebView / iOS WKWebView builds suppress the
-     click event on non-anchor, non-input elements even with
-     cursor:pointer set.  pointerdown fires reliably on all
-     modern touch browsers.  A debounce flag prevents the two
-     events firing the drawer twice on a single tap.
+     4. MOBILE DRAWER
+     Simple click-only handler. The previous pointerdown +
+     e.preventDefault() combo was actively breaking iOS Safari
+     by cancelling the browser's native button activation.
+     <button> elements fire click reliably on all mobile
+     browsers — no workarounds needed once the overlay is fixed.
   ══════════════════════════════════════════════════════════ */
   function openSidebar() {
     sidebar.classList.add('open');
@@ -781,17 +781,9 @@
     drawerBtn.setAttribute('aria-expanded', 'false');
   }
 
-  let drawerDebounce = false;
-  function toggleDrawer(e) {
-    e.preventDefault();   // prevent scroll-jank on touch
-    if (drawerDebounce) return;
-    drawerDebounce = true;
-    setTimeout(() => { drawerDebounce = false; }, 350);
+  drawerBtn.addEventListener('click', () => {
     sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
-  }
-
-  drawerBtn.addEventListener('click',       toggleDrawer);
-  drawerBtn.addEventListener('pointerdown', toggleDrawer);
+  });
 
   drawerOverlay.addEventListener('click', closeSidebar);
 
