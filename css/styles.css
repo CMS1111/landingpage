@@ -191,14 +191,30 @@ header .header-rule {
  *   data-desc1   — first paragraph  (required)
  *   data-desc2   — second paragraph (optional)
  *   data-desc3   — third paragraph  (optional)
+ *
+ * Glass-button effect: ::before arc uses the same 74/255 white
+ * highlight as the classic OS X glass look, clipped by overflow:hidden.
+ * --cell-glass-height mirrors the cell's rendered height (approx 42px with
+ * 10px top+bottom padding + line-height). Tweak if cell height changes.
  */
+:root {
+  --cell-glass-height: 42px; /* matches padding:10px + ~22px line-height */
+}
+
 .link-cell {
-  background: var(--cell-bg);
-  border: var(--border);
+  /* Glass arc variables — mapped to site palette */
+  --glass-bg:     linear-gradient(180deg, rgba(255,240,190,0.11) 0%, rgba(8,7,5,0.72) 100%);
+  --glass-border: var(--neon-cream-edge);
+  --glass-height: var(--cell-glass-height);
+
+  position: relative;
+  overflow: hidden;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius);
   padding: 10px 14px;
   cursor: pointer;
-  transition: background var(--transition), box-shadow var(--transition), border-color var(--transition);
+  transition: background var(--transition), box-shadow var(--transition), border-color var(--transition), filter var(--transition);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -206,16 +222,41 @@ header .header-rule {
   touch-action: manipulation;
 }
 
+/* Glass arc — white semi-ellipse across the top of each cell */
+.link-cell::before {
+  content: '';
+  position: absolute;
+  top: calc(var(--glass-height) / -2);
+  left: -10%;
+  width: 120%;
+  height: var(--glass-height);
+  background: white;
+  border-radius: 50%;
+  opacity: calc(74 / 255); /* ≈ 0.29 — classic OS X glass highlight */
+  pointer-events: none;
+  transition: opacity var(--transition);
+}
+
 .link-cell:hover {
-  background: var(--cell-bg-hover);
+  --glass-bg:   linear-gradient(180deg, rgba(255,240,190,0.18) 0%, rgba(12,10,8,0.72) 100%);
   border-color: var(--neon-cream-glow);
   box-shadow: var(--glow-sm);
+  filter: brightness(1.12);
+}
+
+.link-cell:hover::before {
+  opacity: calc(90 / 255); /* slightly brighter arc on hover */
 }
 
 .link-cell.active {
-  background: var(--cell-bg-active);
+  --glass-bg:   linear-gradient(180deg, rgba(255,232,160,0.22) 0%, rgba(12,10,8,0.72) 100%);
   border-color: var(--neon-cream-glow);
   box-shadow: var(--glow-md);
+}
+
+.link-cell:active {
+  filter: brightness(0.9);
+  transform: translateY(1px);
 }
 
 .link-cell-dot {
