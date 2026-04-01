@@ -1,1 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS1111 — Projects</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
 
+<style>
+  /* ─── DESIGN TOKENS ─────────────────────────────────────── */
+  :root {
+    --bg-tile:          url('background.png');
+    --neon-cream:       #f5ead0;
+    --neon-cream-glow:  #ffe8a0;
+    --neon-cream-dim:   rgba(245,234,208,0.18);
+    --neon-cream-edge:  rgba(255,232,160,0.55);
+    --cell-bg:          rgba(255,252,245,0.07);
+    --cell-bg-hover:    rgba(255,240,190,0.13);
+    --cell-bg-active:   rgba(255,232,160,0.19);
+    --text-primary:     #f0e8d5;
+    --text-dim:         rgba(240,232,213,0.55);
+    --text-link:        #ffe8a0;
+    --panel-bg:         rgba(12,10,8,0.72);
+    --sidebar-bg:       rgba(8,7,5,0.78);
+    --sidebar-w:        260px;
+    --header-h:         72px;
+    --footer-h:         64px;
+    --radius:           10px;
+    --radius-sm:        6px;
+    --glow-sm:          0 0 8px rgba(255,232,160,0.35);
+    --glow-md:          0 0 18px rgba(255,232,160,0.28), 0 0 40px rgba(255,232,160,0.10);
+    --border:           1px solid var(--neon-cream-edge);
+    --transition:       0.22s cubic-bezier(0.4,0,0.2,1);
+    --font-display:     'Cinzel', serif;
+    --font-body:        'Crimson Pro', serif;
+    --font-mono:        'JetBrains Mono', monospace;
+
+    /* ─── FIX #1: DROP SHADOWS ───────────────────────────────
+       The :root defaults were too faint to be visible, and the
+       browser-detection class was never applied in many cases
+       (Brave, mobile Chrome, WebKit on iOS) because the old
+       detection relied on navigator.vendor which is unreliable.
+       These new defaults are strong enough to be visible on ALL
+       engines. Per-browser overrides still fine-tune from here.
+    ───────────────────────────────────────────────────────── */
+    --text-shadow-body:  0 1px 4px rgba(0,0,0,0.75), 0 2px 10px rgba(0,0,0,0.50);
+    --text-shadow-title: 0 2px 8px rgba(0,0,0,0.85), 0 4px 20px rgba(0,0,0,0.55),
+                         0 0 12px rgba(255,232,160,0.20);
+    --text-shadow-url:   0 1px 5px rgba(0,0,0,0.72);
+    --filter-shadow:     drop-shadow(0 2px 5px rgba(0,0,0,0.70));
+  }
+
+  /* ─── RESET ─────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--text-primary);
+    background-color: #0c0a08;
+    background-image: var(--bg-tile);
+    background-repeat: repeat;
+    background-size: auto;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: rgba(8,6,4,0.54);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─────────────────────────────────────────────── */
+  header {
+    position: relative;
+    z-index: 10;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: var(--border);
+    background: rgba(8,7,5,0.82);
+    backdrop-filter: blur(12px);
+    flex-shrink: 0;
+    gap: 18px;
+  }
+
+  header h1 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--neon-cream-glow);
+    text-shadow: var(--glow-md);
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: text-shadow var(--transition);
+  }
+  header h1:hover {
+    text-shadow: var(--glow-md), 0 0 28px rgba(255,232,160,0.25);
+  }
+
+  header .header-rule {
+    width: 48px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cream-edge), transparent);
+  }
+
+  /* ─── FIX #3: HAMBURGER BUTTON ───────────────────────────
+     Missing `cursor: pointer` meant iOS/Android browsers
+     sometimes didn't recognise the element as interactive and
+     swallowed the tap. `touch-action: manipulation` removes
+     the 300 ms click-delay on mobile and prevents ghost taps.
+     `-webkit-tap-highlight-color: transparent` stops the grey
+     flash that can interfere with the tap on some Android OEM
+     browsers. Min dimensions ensure a 44×44 px touch target
+     (Apple HIG / WCAG 2.5.5).
+  ────────────────────────────────────────────────────────── */
+  .hamburger {
+    display: none;
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;                          /* FIX: was missing */
+    touch-action: manipulation;              /* FIX: removes 300ms delay */
+    -webkit-tap-highlight-color: transparent; /* FIX: suppresses ghost tap */
+    min-width: 44px;                          /* FIX: WCAG tap target */
+    min-height: 44px;                         /* FIX: WCAG tap target */
+    padding: 7px 9px;
+    gap: 5px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;                 /* FIX: vertically centre bars */
+    z-index: 11;                              /* FIX: stay above layout z-stack */
+  }
+  .hamburger span {
+    display: block;
+    width: 20px;
+    height: 1.5px;
+    background: var(--neon-cream-glow);
+    border-radius: 2px;
+    transition: var(--transition);
+  }
+
+  /* ─── MAIN LAYOUT ────────────────────────────────────────── */
+  .layout {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* ─── SIDEBAR ────────────────────────────────────────────── */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--sidebar-bg);
+    border-right: var(--border);
+    backdrop-filter: blur(14px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform var(--transition);
+    height: 100%;
+  }
+
+  .sidebar-inner {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-cream-edge) transparent;
+    overscroll-behavior: contain;
+  }
+
+  .sidebar-inner::-webkit-scrollbar { width: 4px; }
+  .sidebar-inner::-webkit-scrollbar-thumb {
+    background: var(--neon-cream-edge);
+    border-radius: 2px;
+  }
+
+  .sidebar-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    padding: 4px 6px 8px;
+    border-bottom: 1px solid rgba(255,232,160,0.12);
+    margin-bottom: 4px;
+  }
+
+  /* ─── LINK CELL ──────────────────────────────────────────── */
+  .link-cell {
+    background: var(--cell-bg);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: background var(--transition), box-shadow var(--transition), border-color var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    user-select: none;
+    touch-action: manipulation; /* FIX: consistent with hamburger */
+  }
+
+  .link-cell:hover {
+    background: var(--cell-bg-hover);
+    border-color: var(--neon-cream-glow);
+    box-shadow: var(--glow-sm);
+  }
+
+  .link-cell.active {
+    background: var(--cell-bg-active);
+    border-color: var(--neon-cream-glow);
+    box-shadow: var(--glow-md);
+  }
+
+  .link-cell-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    border: 1px solid var(--neon-cream-edge);
+    flex-shrink: 0;
+    transition: background var(--transition), box-shadow var(--transition);
+  }
+  .link-cell.active .link-cell-dot,
+  .link-cell:hover .link-cell-dot {
+    background: var(--neon-cream-glow);
+    box-shadow: 0 0 6px var(--neon-cream-glow);
+  }
+
+  .link-cell-title {
+    font-family: var(--font-body);
+    font-size: 0.92rem;
+    font-weight: 300;
+    color: var(--text-primary);
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ─── ABOUT PANEL ────────────────────────────────────────── */
+  .about-panel {
+    flex: 1;
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: clamp(20px, 4vw, 52px) clamp(16px, 5vw, 52px);
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon-cream-edge) transparent;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .about-panel::-webkit-scrollbar { width: 4px; }
+  .about-panel::-webkit-scrollbar-thumb {
+    background: var(--neon-cream-edge);
+    border-radius: 2px;
+  }
+
+  /* ─── BIO SPLASH ─────────────────────────────────────────── */
+  .bio-splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    gap: 22px;
+    animation: fadeUp 0.7s ease both;
+  }
+
+  .bio-handle {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    color: var(--neon-cream-glow);
+    text-shadow: var(--glow-md);
+    text-transform: uppercase;
+  }
+
+  .bio-divider {
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--neon-cream-edge), transparent);
+  }
+
+  .bio-tagline {
+    font-family: var(--font-body);
+    font-size: 1.05rem;
+    font-style: italic;
+    color: var(--text-dim);
+    max-width: 420px;
+    line-height: 1.75;
+    font-weight: 300;
+  }
+
+  .bio-hint {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    color: rgba(245,234,208,0.3);
+    text-transform: uppercase;
+    margin-top: 12px;
+  }
+
+  /* ─── ABOUT CONTENT ──────────────────────────────────────── */
+  /* ─── FIX #2: DYNAMIC PANEL WIDTH ───────────────────────────
+     The old rule had `max-width: 680px` + `align-self: flex-start`
+     which pinned the cards to 680 px regardless of window size.
+     Removing max-width (or setting it to 100%) and keeping
+     `width: 100%` lets the cards fill the full available panel
+     width, which is then controlled by the panel's own padding.
+     `align-self` stays at flex-start so the content sits at the
+     top when there's less content than panel height.
+  ────────────────────────────────────────────────────────── */
+  .about-content {
+    display: none;
+    flex-direction: column;
+    gap: 28px;
+    animation: fadeUp 0.4s ease both;
+    width: 100%;      /* FIX: fill available width */
+    max-width: 100%;  /* FIX: was 680px — now uncapped */
+    align-self: flex-start;
+  }
+
+  .about-content.visible {
+    display: flex;
+  }
+
+  /* ─── PROJECT HEADER CARD ────────────────────────────────── */
+  .project-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    background: var(--cell-bg);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px 22px;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  .project-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(255,232,160,0.05) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .project-favicon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    object-fit: contain;
+    background: var(--neon-cream-dim);
+    filter: var(--filter-shadow);
+  }
+
+  /* ─── FIX #1 (continued): TITLE LINK SHADOW ─────────────────
+     Added an explicit golden ambient glow to complement the
+     dark drop-shadow, making the effect visible even when the
+     browser detection class is not applied.
+  ────────────────────────────────────────────────────────── */
+  .project-title-link {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--neon-cream-glow);
+    text-decoration: none;
+    text-shadow: var(--glow-sm), var(--text-shadow-title);
+    text-align: center;
+    text-transform: uppercase;
+    transition: text-shadow var(--transition);
+    width: 100%;
+    word-break: break-word;
+  }
+  .project-title-link:hover {
+    text-shadow: var(--glow-md), var(--text-shadow-title);
+  }
+
+  .project-url {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    text-align: center;
+    word-break: break-all;
+    text-shadow: var(--text-shadow-url);
+    width: 100%;
+  }
+
+  /* ─── ABOUT BODY ─────────────────────────────────────────── */
+  .about-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: var(--cell-bg);
+    border: var(--border);
+    border-radius: var(--radius);
+    padding: 28px 32px;
+    width: 100%;
+  }
+
+  .about-body p {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.8;
+    font-weight: 300;
+    color: var(--text-primary);
+    text-shadow: var(--text-shadow-body);
+  }
+
+  /* ─── FOOTER ─────────────────────────────────────────────── */
+  footer {
+    position: relative;
+    z-index: 10;
+    height: var(--footer-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    border-top: var(--border);
+    background: rgba(8,7,5,0.82);
+    backdrop-filter: blur(12px);
+    flex-shrink: 0;
+  }
+
+  .footer-link {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color var(--transition), text-shadow var(--transition);
+    padding: 4px 0;
+    border-bottom: 1px solid transparent;
+  }
+  .footer-link:hover {
+    color: var(--neon-cream-glow);
+    text-shadow: var(--glow-sm);
+    border-bottom-color: var(--neon-cream-edge);
+  }
+
+  .footer-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--neon-cream-edge);
+    opacity: 0.35;
+  }
+
+  /* ─── DRAWER OVERLAY ─────────────────────────────────────── */
+  .drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;        /* FIX: never intercept taps when invisible */
+    transition: opacity var(--transition);
+  }
+
+  /* ─── ANIMATIONS ─────────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ─── MOBILE ─────────────────────────────────────────────── */
+  @media (max-width: 720px) {
+    .hamburger { display: flex; }
+
+    .sidebar {
+      position: fixed;
+      top: var(--header-h);           /* FIX: start below the header, not under it */
+      left: 0;
+      height: calc(100% - var(--header-h) - var(--footer-h)); /* FIX: stop above footer */
+      z-index: 60;
+      transform: translateX(-100%);
+      width: min(var(--sidebar-w), 80vw);
+      overflow: hidden;
+    }
+    .sidebar.open { transform: translateX(0); }
+    /* FIX 1.1: guarantee the list scrolls on mobile when items overflow */
+    .sidebar .sidebar-inner {
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .drawer-overlay { display: block; }
+    /* Overlay is cosmetic only — pointer-events stay none always.
+       Outside-tap detection is handled in JS via document touchstart. */
+    .drawer-overlay.visible { opacity: 1; }
+
+    .about-panel { padding: 24px 20px; }
+    .about-body  { padding: 20px 18px; }
+  }
+
+  /* ═══════════════════════════════════════════════════════════
+     BROWSER-SPECIFIC DROP SHADOW OVERRIDES
+     ─── FIX #1 (continued) ──────────────────────────────────
+     The JS detection now uses a feature-sniff cascade that
+     does NOT rely on navigator.vendor (unreliable in Brave,
+     Samsung Internet, WebView, etc.). Instead it sniffs UA
+     tokens in a priority order that covers all common cases.
+  ═══════════════════════════════════════════════════════════ */
+
+  html.browser-firefox {
+    --text-shadow-body:  0 1px 3px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.42);
+    --text-shadow-title: 0 1px 6px rgba(0,0,0,0.78), 0 3px 12px rgba(0,0,0,0.48),
+                         0 0 10px rgba(255,232,160,0.18);
+    --text-shadow-url:   0 1px 4px rgba(0,0,0,0.60);
+    --filter-shadow:     drop-shadow(0 1px 4px rgba(0,0,0,0.65));
+  }
+
+  html.browser-chrome {
+    --text-shadow-body:  0 1px 4px rgba(0,0,0,0.78), 0 3px 12px rgba(0,0,0,0.50);
+    --text-shadow-title: 0 2px 8px rgba(0,0,0,0.88), 0 4px 20px rgba(0,0,0,0.55),
+                         0 0 14px rgba(255,232,160,0.22);
+    --text-shadow-url:   0 1px 5px rgba(0,0,0,0.72);
+    --filter-shadow:     drop-shadow(0 2px 5px rgba(0,0,0,0.72));
+  }
+
+  html.browser-edge {
+    --text-shadow-body:  0 1px 4px rgba(0,0,0,0.74), 0 3px 10px rgba(0,0,0,0.48);
+    --text-shadow-title: 0 2px 7px rgba(0,0,0,0.82), 0 4px 18px rgba(0,0,0,0.52),
+                         0 0 12px rgba(255,232,160,0.20);
+    --text-shadow-url:   0 1px 5px rgba(0,0,0,0.68);
+    --filter-shadow:     drop-shadow(0 2px 5px rgba(0,0,0,0.68));
+  }
+
+  html.browser-mobile {
+    --text-shadow-body:  0 1px 3px rgba(0,0,0,0.60);
+    --text-shadow-title: 0 1px 5px rgba(0,0,0,0.72), 0 0 8px rgba(255,232,160,0.15);
+    --text-shadow-url:   0 1px 3px rgba(0,0,0,0.58);
+    --filter-shadow:     drop-shadow(0 1px 3px rgba(0,0,0,0.60));
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════ -->
+<header>
+  <button class="hamburger" id="drawerBtn" aria-label="Open navigation" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="header-rule"></div>
+  <h1 id="siteTitle">CMS1111</h1>
+  <div class="header-rule"></div>
+</header>
+
+<!-- ═══ LAYOUT ═══════════════════════════════════════════════ -->
+<div class="layout">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────── -->
+  <nav class="sidebar" id="sidebar" aria-label="Projects">
+    <div class="sidebar-inner">
+
+      <div class="sidebar-label">Projects</div>
+
+      <div class="link-cell"
+           data-id="proj-1"
+           data-title="YT Player Mobile Version"
+           data-url="https://cms1111.github.io/YT_Playlist_Mobile/"
+           data-favicon="https://github.com/favicon.ico"
+           data-desc1="A video playlist creator for Youtube video to use on your mobile device."
+           data-desc2="The player works best on Brave Browser. It was created specifically to tackle issues with playback on iPhone devices, where youtube restricts many playback features."
+           data-desc3="Native Brave Browser features allows for ad-blocking. You can now turn your phone's display off and listen to a playlist of your videos in the background, or stream it to your car's stereo.">
+        <span class="link-cell-dot"></span>
+        <span class="link-cell-title">YT Player Mobile Version</span>
+      </div>
+
+      <div class="link-cell"
+           data-id="proj-2"
+           data-title="YT Player Desktop Version"
+           data-url="https://cms1111.github.io/Youtube_playlist/"
+           data-favicon="https://github.com/favicon.ico"
+           data-desc1="A video playlist creator for Youtube video to use on your desktop browser."
+           data-desc2="The player works best on desktop and currently has only been tested on Firefox."
+           data-desc3="Features include: import/export playlist, paste and add url buttons, video navigation buttons, and autoplay.">
+        <span class="link-cell-dot"></span>
+        <span class="link-cell-title">YT Player Desktop Version</span>
+      </div>
+
+      <div class="link-cell"
+           data-id="proj-3"
+           data-title="Any Playlist"
+           data-url="https://cms1111.github.io/AnyPlaylist"
+           data-favicon="https://github.com/favicon.ico"
+           data-desc1="A video playlist creator for most direct mp4 urls."
+           data-desc2="Going beyond just youtube videos, this page will allow you to create a playlist of most mp4 links you have."
+           data-desc3="There are many restrictions for mp4 embedding including CORS, where content is only playable if you're connected to the original domain. This project is in its infancy, but I plan to tackle many of these restrictions in the future.">
+        <span class="link-cell-dot"></span>
+        <span class="link-cell-title">Any Playlist</span>
+      </div>
+
+      <div class="link-cell"
+           data-id="proj-4"
+           data-title="VR Playlist"
+           data-url="https://cms1111.github.io/vrplaylist"
+           data-favicon="https://github.com/favicon.ico"
+           data-desc1="A video playlist creator that converts video to VR."
+           data-desc2="This project is still incomplete, check back soon."
+           data-desc3="The final project will transform videos from a url into VR playback, with 360, 180, 2D Dual view, and features like zoom and pan.">
+        <span class="link-cell-dot"></span>
+        <span class="link-cell-title">VR Playlist</span>
+      </div>
+
+    </div><!-- /sidebar-inner -->
+  </nav><!-- /sidebar -->
+
+  <!-- ── ABOUT PANEL ──────────────────────────────────────── -->
+  <main class="about-panel" id="aboutPanel">
+
+    <div class="bio-splash" id="bioSplash">
+      <div class="bio-handle">CMS1111</div>
+      <div class="bio-divider"></div>
+      <p class="bio-tagline">
+        Builder of scrapers, traders, and browser oddities.<br>
+        Open-source tools for those who like to get their hands dirty.
+      </p>
+      <div class="bio-hint">Select a project to explore</div>
+    </div>
+
+    <div class="about-content" id="aboutContent">
+      <div class="project-header" id="projectHeader">
+        <img class="project-favicon" id="projectFavicon" src="" alt="" width="32" height="32">
+        <a class="project-title-link" id="projectTitleLink" href="#" target="_blank" rel="noopener noreferrer"></a>
+        <div class="project-url" id="projectUrl"></div>
+      </div>
+      <div class="about-body" id="aboutBody"></div>
+    </div>
+
+  </main>
+</div><!-- /layout -->
+
+<!-- ═══ FOOTER ═══════════════════════════════════════════════ -->
+<footer>
+  <a class="footer-link" href="https://github.com/CMS1111" target="_blank" rel="noopener noreferrer">GitHub</a>
+  <div class="footer-sep"></div>
+  <a class="footer-link" href="https://buymeacoffee.com/cms1111" target="_blank" rel="noopener noreferrer">Buy Me A Coffee</a>
+  <div class="footer-sep"></div>
+  <a class="footer-link" href="https://linktr.ee/BluWolfWhtRbbt" target="_blank" rel="noopener noreferrer">Linktree</a>
+</footer>
+
+<div class="drawer-overlay" id="drawerOverlay"></div>
+
+<!-- ═══ SCRIPT ═══════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ══════════════════════════════════════════════════════════
+     1. BROWSER DETECTION  —  FIX #1
+     Old code used navigator.vendor === "Google Inc" which is
+     absent in Brave, Samsung Internet, WebView, and many
+     Chromium forks, so the class was never added and only the
+     very faint :root defaults applied.
+
+     New approach: UA-token cascade only.  No navigator.vendor.
+     Priority:  mobile → Edge → Firefox → Chrome (catchall for
+     all Chromium) → Safari (no class, :root defaults apply).
+  ══════════════════════════════════════════════════════════ */
+  (function detectBrowser() {
+    const ua   = navigator.userAgent;
+    const html = document.documentElement;
+
+    const isMobile  = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+    const isEdge    = /Edg\//i.test(ua);
+    const isFirefox = /Firefox\//i.test(ua);
+    // Catchall for Chrome, Brave, Samsung Internet, WebView, Opera, etc.
+    const isChromium = !isEdge && !isFirefox && /Chrome\//i.test(ua);
+
+    if (isMobile)       html.classList.add('browser-mobile');
+    else if (isEdge)    html.classList.add('browser-edge');
+    else if (isFirefox) html.classList.add('browser-firefox');
+    else if (isChromium)html.classList.add('browser-chrome');
+    // Safari / unknown → :root defaults (no class needed)
+  })();
+
+  /* ══════════════════════════════════════════════════════════
+     2. DYNAMIC PANEL RESIZE
+  ══════════════════════════════════════════════════════════ */
+  const aboutPanel = document.getElementById('aboutPanel');
+
+  function onPanelResize() {
+    aboutPanel.style.height = '';
+    requestAnimationFrame(() => {
+      aboutPanel.style.height = '100%';
+    });
+  }
+
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(onPanelResize).observe(aboutPanel.parentElement);
+  } else {
+    window.addEventListener('resize', onPanelResize);
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     3. CELL INTERACTION
+  ══════════════════════════════════════════════════════════ */
+  const cells            = document.querySelectorAll('.link-cell');
+  const bioSplash        = document.getElementById('bioSplash');
+  const aboutContent     = document.getElementById('aboutContent');
+  const projectFavicon   = document.getElementById('projectFavicon');
+  const projectTitleLink = document.getElementById('projectTitleLink');
+  const projectUrl       = document.getElementById('projectUrl');
+  const aboutBody        = document.getElementById('aboutBody');
+  const sidebar          = document.getElementById('sidebar');
+  const drawerBtn        = document.getElementById('drawerBtn');
+  const drawerOverlay    = document.getElementById('drawerOverlay');
+
+  function showProject(cell) {
+    const url     = cell.dataset.url;
+    const title   = cell.dataset.title;
+    const favicon = cell.dataset.favicon;
+    const descs   = [
+      cell.dataset.desc1,
+      cell.dataset.desc2,
+      cell.dataset.desc3,
+    ].filter(Boolean);
+
+    projectFavicon.src           = favicon;
+    projectFavicon.alt           = title + ' favicon';
+    projectTitleLink.textContent = title;
+    projectTitleLink.href        = url;
+    projectUrl.textContent       = url;
+    aboutBody.innerHTML          = descs.map(d => `<p>${d}</p>`).join('');
+
+    bioSplash.style.display    = 'none';
+    aboutContent.style.display = 'flex';
+
+    aboutPanel.scrollTop = 0;
+
+    aboutContent.classList.remove('visible');
+    void aboutContent.offsetWidth;
+    aboutContent.classList.add('visible');
+  }
+
+  const siteTitle = document.getElementById('siteTitle');
+
+  /* ── Show bio splash ──────────────────────────────────────── */
+  function showBio() {
+    cells.forEach(c => c.classList.remove('active'));
+    aboutContent.classList.remove('visible');
+    aboutContent.style.display  = 'none';
+    bioSplash.style.display     = 'flex';
+  }
+
+  siteTitle.addEventListener('click', showBio);
+
+  cells.forEach(cell => {
+    cell.addEventListener('click', () => {
+      cells.forEach(c => c.classList.remove('active'));
+      cell.classList.add('active');
+      showProject(cell);
+      closeSidebar();
+    });
+  });
+
+  /* ══════════════════════════════════════════════════════════
+     4. MOBILE DRAWER
+     The overlay is purely cosmetic (pointer-events: none always).
+     "Tap outside to close" is handled here by listening to
+     touchstart on document — touchstart fires before the
+     browser synthesises a click, so it cannot be blocked by
+     z-index hit-testing quirks on mobile Safari/WebView.
+     We check whether the touch target is inside the sidebar
+     or the hamburger button; if not, we close.
+  ══════════════════════════════════════════════════════════ */
+  function openSidebar() {
+    sidebar.classList.add('open');
+    drawerOverlay.classList.add('visible');
+    drawerBtn.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    drawerOverlay.classList.remove('visible');
+    drawerBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  drawerBtn.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+
+  /* Outside-tap closes drawer — works on all mobile browsers */
+  document.addEventListener('touchstart', (e) => {
+    if (!sidebar.classList.contains('open')) return;
+    if (sidebar.contains(e.target) || drawerBtn.contains(e.target)) return;
+    closeSidebar();
+  }, { passive: true });
+
+  /* Keyboard close */
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSidebar();
+  });
+
+})();
+</script>
+</body>
+</html>
